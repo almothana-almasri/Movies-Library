@@ -1,9 +1,21 @@
-# Movies-Library - Version 1.0.0
+# Movies-Library
+## Version 1.0.1 - 21/March/2023
+- Installed cors
+- Installed nodemon
+- Installed axios
+- Installed dotenv
+-  Create GET request to the 3rd party API for these endpoints:
+- trending: Get the trending movies data from the Movie DB API Link
+## Version 1.0.0 - 19/March/2023
+- Installed express 
+- Create a route with a method of get and a path of /. The callback should use the provided JSON data.
+- Create a constructor function to ensure your data follow the same format.
+
 
 **Author Name**: Almothana Almasri
 
 ## WRRC
-
+![Alt text](assets/API.PNG)
 ![Alt text](assets/WRCC.PNG)
 
 ## Overview
