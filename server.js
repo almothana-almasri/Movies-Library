@@ -2,15 +2,21 @@
 
 const express = require('express');
 const app = express();
-require('dotenv').config()
 const cors = require('cors')
 const axios = require('axios');
 const StoredData = require('./Movie Data/data.json');
-const port = process.env.port;
-const apiKey = process.env.API_Key
+const bodyParser = require('body-parser')
 const { json } = require('express');
+const { Client } = require('pg')
+require('dotenv').config()
+const URL = process.env.DATABASE_URL
+const client = new Client(URL)
+const apiKey = process.env.API_Key
+const port = process.env.port;
 
 app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 
 function MovieData(id, name, first_air_date, poster_path, overview) {
     this.id = id;
@@ -87,6 +93,27 @@ app.get("/keyword", (req, res) => {
             console.log(err);
         });
 })
+app.post('/addMovie', (req, res) => {
+    let { title, comments } = req.body;
+    let sql = 'INSERT INTO movies (title, comments) VALUES ($1, $2) RETURNING *';
+    let values = [title, comments];
+    client.query(sql, values).then(result => {
+        console.log(result.rows);
+        res.status(201).json(result.rows);
+    }
+    ).catch(err => {
+        console.log(err);
+    })
+});
+app.get('/getMovies', (req, res) => {
+    let sql = `SELECT * FROM movies;`;
+    client.query(sql).then((result) => {
+        console.log(result);
+        res.json(result.rows)
+    }).catch((err) => {
+        console.log(err);
+    })
+});
 app.use((req, res) => {
     res.status(404).json({
         status: 404,
@@ -100,6 +127,10 @@ app.use((err, req, res, next) => {
         responseText: 'Sorry, something went wrong'
     });
 });
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
+client.connect().then(() => {
+    app.listen(port, () => {
+        console.log(`Server listening on port ${port}`);
+    })
+}).catch(err => {
+    console.log(`Failed to listen on port ${port} because of error: ${err}`);
+})
