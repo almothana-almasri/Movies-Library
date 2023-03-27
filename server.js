@@ -45,6 +45,7 @@ app.get("/trending", (req, res) => {
         })
         .catch((err) => {
             console.log(err);
+            errorHandler(err, req, res);
         });
 });
 app.get("/search", (req, res) => {
@@ -61,6 +62,7 @@ app.get("/search", (req, res) => {
         })
         .catch((err) => {
             console.log(err);
+            errorHandler(err, req, res);
         });
 })
 app.get("/discover", (req, res) => {
@@ -75,6 +77,7 @@ app.get("/discover", (req, res) => {
         })
         .catch((err) => {
             console.log(err);
+            errorHandler(err, req, res);
         });
 });
 app.get("/keyword", (req, res) => {
@@ -91,18 +94,20 @@ app.get("/keyword", (req, res) => {
         })
         .catch((err) => {
             console.log(err);
+            errorHandler(err, req, res);
         });
 })
 app.post('/addMovie', (req, res) => {
-    let { title, comments } = req.body;
-    let sql = 'INSERT INTO movies (title, comments) VALUES ($1, $2) RETURNING *';
-    let values = [title, comments];
+    let { title, release_date, poster_path, overview, comments } = req.body;
+    let sql = 'INSERT INTO movies (title, release_date, poster_path, overview, comments) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+    let values = [title, release_date, poster_path, overview, comments];
     client.query(sql, values).then(result => {
         console.log(result.rows);
         res.status(201).json(result.rows);
-    }
-    ).catch(err => {
+    }).catch(err => {
         console.log(err);
+        errorHandler(err, req, res);
+
     })
 });
 app.get('/getMovies', (req, res) => {
@@ -112,21 +117,66 @@ app.get('/getMovies', (req, res) => {
         res.json(result.rows)
     }).catch((err) => {
         console.log(err);
+        errorHandler(err, req, res);
+
     })
 });
+app.put('/UPDATE/:id', (req, res) => {
+    let {id} = req.params;
+    let { title, release_date, poster_path, overview, comments } = req.body;
+    let sql = `UPDATE movies SET title=$1, release_date=$2, poster_path=$3, overview=$4, comments=$5 WHERE id=$6;`;
+    let values = [title, release_date, poster_path, overview, comments, id];
+    client.query(sql, values).then(result => {
+        console.log(result);
+        res.send("Updated Title: " + title + " Comments: " + comments)
+    }).catch(err => {
+        console.log(err);
+        errorHandler(err, req, res);
+    })
+})
+app.delete('/DELETE/:id', (req, res) => {
+    let id = req.params.id;
+    let sql = `DELETE FROM movies WHERE id=$1;`;
+    let values = [id];
+    client.query(sql, values).then(result => {
+        console.log(result);
+        res.status(200).send("Deleted ID: " + id);
+        }).catch(err => {
+        console.log(err);
+        errorHandler(err, req, res);
+    })
+})
+app.get('/getMovie/:id', (req, res) => {
+    let id = req.params.id;
+    let sql = `SELECT * FROM movies WHERE id=$1;`;
+    let values = [id];
+    client.query(sql, values).then((result) => {
+        console.log(result);
+        res.json(result.rows)
+        }).catch((err) => {
+        console.log(err);
+        errorHandler(err, req, res);
+    })
+})
+
+
+// Error handling
 app.use((req, res) => {
     res.status(404).json({
         status: 404,
         responseText: 'Page not found'
     });
 });
-app.use((err, req, res, next) => {
-    console.error(err.stack);
+app.use(errorHandler);
+function errorHandler(error, req, res) {
+    console.error(error.stack);
     res.status(500).json({
         status: 500,
         responseText: 'Sorry, something went wrong'
     });
-});
+};
+
+// DB connect then listen for port
 client.connect().then(() => {
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`);
