@@ -9,10 +9,10 @@ const bodyParser = require('body-parser')
 const { json } = require('express');
 const { Client } = require('pg')
 require('dotenv').config()
-const URL = process.env.DATABASE_URL
-const client = new Client(URL)
-const apiKey = process.env.API_Key
-const port = process.env.port;
+const DATABASE_URL = process.env.DATABASE_URL
+const client = new Client(DATABASE_URL)
+const API_Key = process.env.API_Key
+const PORT = process.env.PORT
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -34,7 +34,7 @@ app.get('/favorite', (req, res) => {
     res.send('Welcome to Favorite Page');
 });
 app.get("/trending", (req, res) => {
-    let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}&language=en-US`;
+    let url = `https://api.themoviedb.org/3/trending/all/week?api_key=${API_Key}&language=en-US`;
     axios.get(url)
         .then((result) => {
             let trendingMovies = result.data.results.map((trending) => {
@@ -50,7 +50,7 @@ app.get("/trending", (req, res) => {
 });
 app.get("/search", (req, res) => {
     let MovieName = req.query.name
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&query=${MovieName}&page=2`
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${API_Key}&language=en-US&query=${MovieName}&page=2`
     axios.get(url)
         .then((result) => {
             let searchedMovies = result.data.results.map((searched) => {
@@ -66,7 +66,7 @@ app.get("/search", (req, res) => {
         });
 })
 app.get("/discover", (req, res) => {
-    let url = ` https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate`;
+    let url = ` https://api.themoviedb.org/3/discover/movie?api_key=${API_Key}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate`;
     axios.get(url)
         .then((result) => {
             let trendingMovies = result.data.results.map((trending) => {
@@ -82,7 +82,7 @@ app.get("/discover", (req, res) => {
 });
 app.get("/keyword", (req, res) => {
     let keyword = req.query.name
-    let url = ` https://api.themoviedb.org/3/keyword/${keyword}?api_key=${apiKey}`
+    let url = ` https://api.themoviedb.org/3/keyword/${keyword}?api_key=${API_Key}`
     axios.get(url)
         .then((result) => {
             let searchedMovies = result.data.results.map((searched) => {
@@ -178,9 +178,9 @@ function errorHandler(error, req, res) {
 
 // DB connect then listen for port
 client.connect().then(() => {
-    app.listen(port, () => {
-        console.log(`Server listening on port ${port}`);
+    app.listen(PORT, () => {
+        console.log(`Server listening on port ${PORT}`);
     })
 }).catch(err => {
-    console.log(`Failed to listen on port ${port} because of error: ${err}`);
+    console.log(`Failed to listen on port ${PORT} because of error: ${err}`);
 })
