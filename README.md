@@ -1,4 +1,8 @@
 # Movies-Library
+## Version 1.3.0 - 27/March/2023
+- /UPDATE/id: Update a movie from the database by ID
+- /DELETE/id: Delete a movie from the database by ID
+- getMovie/id: Get a movie from the database by ID
 ## Version 1.2.0 - 25/March/2023
 - Installed pg package
 - Installed body-parser package
@@ -21,6 +25,7 @@
 
 ## WRRC
 
+![Update WRCC](assets/Update%20WRCC.png)
 ![Local DB WRCC](assets/Local%20DB%20WRCC.PNG)
 ![3rd Party API WRCC](assets/3rd%20Party%20API%20WRCC.PNG)
 ![WRCC](assets/WRCC.PNG)
